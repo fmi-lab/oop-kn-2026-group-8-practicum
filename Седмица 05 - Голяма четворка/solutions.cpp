@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <type_traits>
+#include <utility>
 
 enum class State {
   not_started,
@@ -66,6 +67,18 @@ public:
     return *this;
   }
 
+  Task(Task&& other)
+    : state(other.state), 
+      name(std::exchange(other.name, nullptr)), 
+      description(std::exchange(other.description, nullptr)) {}
+
+  Task& operator=(Task&& other) {
+    Task copy(std::move(other));
+    swap(copy);
+
+    return *this;
+  }
+
   void print() const {
     std::cout << "Task: " << name << '\n'
               << "Description: " << description << '\n'
@@ -119,12 +132,31 @@ public:
     delete [] tasks;
   }
 
+  TasksArray(TasksArray&& other)
+    : size(other.size), capacity(other.capacity), 
+      tasks(std::exchange(other.tasks, nullptr)) {}
+
+  TasksArray& operator=(TasksArray&& other) {
+    TasksArray copy(std::move(other));
+    swap(copy);
+
+    return *this;
+  }
+
   void add_task(const Task& task) {
     if (size == capacity) {
       resize();
     }
 
     tasks[size++] = task;
+  }
+
+  void add_task(Task&& task) {
+    if (size == capacity) {
+      resize();
+    }
+
+    tasks[size++] = std::move(task);
   }
 
   std::size_t length() const {
@@ -186,6 +218,18 @@ public:
     return *this;
   }
 
+  TodoList& add_task(Task&& task) {
+    for (std::size_t i = 0; i < tasks.length(); ++i) {
+      if (strcmp(task.get_name(), tasks.get(i).get_name()) == 0) {
+        return *this;
+      }
+    }
+    
+    tasks.add_task(std::move(task));
+    
+    return *this;
+  }
+
   void print() const {
     std::cout << "Number of tasks: " << tasks.length() << '\n';
     for (std::size_t i = 0; i < tasks.length(); ++i) {
@@ -242,7 +286,7 @@ int main() {
   Task t5("Do your homework", "OOP", State::not_started);
 
   TodoList list;
-  list.add_task(t1).add_task(t2).add_task(t3).add_task(t4).add_task(t5);
+  list.add_task(std::move(t1)).add_task(t2).add_task(t3).add_task(t4).add_task(t5);
 
   list.print();
 
