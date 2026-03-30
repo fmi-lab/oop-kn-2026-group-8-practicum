@@ -117,7 +117,7 @@ file.close();
 Да се реализира клас `Library`, който представлява библиотека, която има име с произволна дължина и списък от книги. Класът да реализира следните методи:
 - void add(const Book& book) - добавя книга към библиотеката;
 - std::size_t get_list_size() const - връща размера на списъка с книгите;
-- const std::string& get_name() const - връща името на библиотеката;
+- const char* get_name() const - връща името на библиотеката;
 - void serialize(std::ostream& os) const - записва библиотеката в текстов поток;
 - void deserialize(std::istream& is) - чете обект от текстов поток.
 
