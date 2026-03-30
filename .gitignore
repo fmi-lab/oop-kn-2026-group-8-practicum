@@ -42,3 +42,6 @@
 
 *.exe
 prelimitary.*
+
+*.txt
+*.bin
