@@ -62,6 +62,10 @@ public:
               << "DMG: " << dmg << '\n';
   }
 
+  virtual Character* clone() const {
+    return new Character(*this);
+  }
+
 private:
   char* name;
   float dmg, hp;
@@ -95,6 +99,10 @@ public:
     Character::heal(points * 1.05);
   }
 
+  Knight* clone() const final {
+    return new Knight(*this);
+  }
+
 private:
   const char* type() const {
     return "Knight";
@@ -108,6 +116,10 @@ public:
 
   void take_damage(float points) final {
     Character::take_damage(points * 1.15);
+  }
+
+  Archer* clone() const {
+    return new Archer(*this);
   }
 
 private:
@@ -129,22 +141,25 @@ public:
       size(other.size),
       capacity(other.capacity) {
     for (std::size_t i = 0; i < other.size; ++i) {
-      characters[i] = other.characters[i];
+      characters[i] = other.characters[i]->clone();
     }
   }
 
   ~Game() {
+    for (std::size_t i = 0; i < size; ++i) {
+      delete characters[i];
+    }
     delete [] characters;
   }
 
   // TODO: rule of 5
 
-  void add(Character* character) {
+  void add(const Character& character) {
     if (size == capacity) {
       resize();
     }
 
-    characters[size++] = character;
+    characters[size++] = character.clone();
   }
 
   void print() const {
@@ -179,9 +194,9 @@ int main() {
   Archer a("Legolas", 50, 80);
 
   Game game;
-  game.add(&c);
-  game.add(&k);
-  game.add(&a);
+  game.add(c);
+  game.add(k);
+  game.add(a);
 
   game.print();
 
